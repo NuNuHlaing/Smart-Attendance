@@ -1,5 +1,6 @@
 # Smart-Attendance
 Smart Attendance using Deep Learning &amp; Computer Vision
+
 ![Python](https://img.shields.io/badge/-Python-black?style=flat&logo=python)
 ![Deep Learning](https://img.shields.io/badge/-Deep%20Learning-566be8?style=flat)
 ![Tensorflow](https://img.shields.io/badge/-Tensorflow-gray?style=flat&logo=tensorflow)
@@ -30,6 +31,7 @@ To run this code, you need to:
 - from keras.models import model_from_json
 - from PIL import Image
 - from google.colab import drive
+- from datetime import datetime
 
 ## Labelling 
 | Label | Description |
@@ -38,12 +40,24 @@ To run this code, you need to:
 | 1 | Nu Nu Hlaing |
 | 2 | Will Smith |
 
-## Further development
-* [ ]  **Model optimization**:To extend the model to be more culturally sensitive and adaptable
-* [ ]  **Dataset expansion**:To expand and diversify the dataset to ensure it represents a wide range of cultures, and expressions.
-* [ ]  **Data augmentation**:To improve performance in challenging environments, such as low-light conditions or low-resolution images
-* [ ]  **Color image support**:To modify model to handle color images as input.
+## AI Ethics
+* [ ]  **Privacy & Security**:
+- Don’t save any input data from users 
+- Avoid deploying the system where it could be used for unethical purposes
+* [ ]  **Explainability**:
+- Easy to use with user-centric design
+- People just need to stand in front of a camera - no special cards or lists.
+* [ ]  **Fairness**:
+- Treat everyone fairly and equally without any bias based on factors like race, gender, or background
+* [ ]  **Limitations**:
+- Sometimes, it doesn't work as well if someone looks different.
+- May vary depending on lighting conditions, camera quality, and camera angle
 
+## Future Work
+* [ ]  **Model optimization**:To extend the model to be more culturally sensitive and adaptable
+* [ ]  **Dataset expansion**:To expand and diversify the dataset to ensure it represents a wide range of people.
+* [ ]  **Data augmentation**:To improve performance in challenging environments, such as low-light conditions or low-resolution images
+* [ ]  **Real-time Performance**:To optimize the model for real-time processing to provide immediate updates without delay.
 
 ## Refrences
 - Emotion detection: https://github.com/juan-csv/emotion_detection
