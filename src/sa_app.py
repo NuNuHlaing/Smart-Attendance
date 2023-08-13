@@ -14,7 +14,7 @@ from tensorflow.keras.layers import *
 logo_path = "src/sa_logo.png"
 data_dict = {0: "Angelina Jolie", 1: "Nu Nu Hlaing", 2: "Will Smith"} # Dictionary mapping prediction index to corresponding names
 model_path = "model/smartattendance.h5" # File path to the trained model
-csv_file_path = "DatasetInfo.csv" # File path to the CSV file containing data
+csv_file_path = "daily attendance/DataInfo.csv" # File path to the CSV file containing data
 
 # Create face detector
 face_detector = cv2.CascadeClassifier('haarcascades/haarcascade_frontalface_default.xml')
@@ -148,16 +148,17 @@ def read_csv(predicted_label_name):
         csv_data.to_csv(csv_file_path, index=False)
 
         # Filter data based on the provided name parameter and show columns for display
-        #filtered_data = csv_data[csv_data["Name"] == predicted_label_name]        
+        # Use this to show one row corresponding the provided name parameter
+        #filtered_data = csv_data[csv_data["Name"] == predicted_label_name]    
+            
         # Show all data rows if predicted_label_name is None or empty
         filtered_data = csv_data
     else:
         # Show all data rows if predicted_label_name is None or empty
         filtered_data = csv_data
-
-    # Display filtered data using Streamlit    
-    selected_columns = ["ID", "Name", "Gender", "Email", "In", "Out"]     
-    filtered_selected_data = filtered_data[selected_columns]
+  
+    # Apply the row highlighting function to the filtered DataFrame
+    filtered_selected_data = filtered_data.drop(columns=['Date']).style.apply(lambda row: ['background-color: #ADD8E6']*len(row) if row['Name'] == predicted_label_name else ['']*len(row), axis=1)
     return filtered_selected_data
 
 # Home 
@@ -227,7 +228,7 @@ def captureImage(model) :
         # Predict input image and show result
         predict_image_and_show_result(image, image_array, model)
 
-# Contact Me
+# Contact
 def contact() :
     st.markdown("<span style='text-align: center; font-size: 14'>You can send email to us via formsubmit.co</span>", unsafe_allow_html=True)
     form_submit = """<form action="https://formsubmit.co/nunuhlaing2011@gmail.com" method="POST">
@@ -303,14 +304,10 @@ def save_daily_attendance_Btn() :
 def save_daily_attendance_to_newCSV(new_csv_filename) :    
     st.empty() # Clear the main area    
     old_csv_data = pd.read_csv(csv_file_path) # Read the original CSV file
-    # Create new folder to save daily attendance
-    new_csv_file_path = "daily attendance/"
-    if not os.path.exists(new_csv_file_path):
-        os.makedirs(new_csv_file_path)
-    new_csv_file_path = os.path.join("daily attendance", new_csv_filename)
+    new_csv_file_path = "daily attendance/" + new_csv_filename
     # Write the data to a new CSV file
     try:
-        with open(new_csv_filename, 'w') as f:            
+        with open(new_csv_file_path, 'w') as f:            
             f.write('\n') # Write an empty line to create the CSV file        
         old_csv_data.to_csv(new_csv_file_path, index=False) # Copy data to new CSV
         st.success(f"Save Successfully! '{new_csv_file_path}'.")
@@ -346,14 +343,14 @@ def main():
     st.markdown("<h1 style='text-align: center;'>Smart Attendance</h1>", unsafe_allow_html=True) 
     
     # Choose options: Upload Image or Webcam
-    options = ['select here...', 'Image', 'Webcam', 'Contact Us']
-    inputResource = st.sidebar.selectbox('How would you like to be detected?', options, index=options.index('select here...'))
+    options = ['Select here...', 'Image', 'Webcam', 'Contact Us']
+    inputResource = st.sidebar.selectbox('How would you like to be detected?', options, index=options.index('Select here...'))
     
     # Load the smart attendance face detection model
     model = keras.models.load_model(model_path)
 
     # HomePage of Streamlit App
-    if inputResource == 'select here...':
+    if inputResource == 'Select here...':
         # Clear the main area
         st.empty()
         # Show Home Page
