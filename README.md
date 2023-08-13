@@ -4,7 +4,6 @@ Smart Attendance using Deep Learning &amp; Computer Vision
 ![Python](https://img.shields.io/badge/-Python-black?style=flat&logo=python)
 ![Deep Learning](https://img.shields.io/badge/-Deep%20Learning-566be8?style=flat)
 ![Tensorflow](https://img.shields.io/badge/-Tensorflow-gray?style=flat&logo=tensorflow)
-![Keras](https://img.shields.io/badge/-Keras-gray?style=flat&logo=keras)
 ![OpenCV](https://img.shields.io/badge/-OpenCV-gray?style=flat&logo=opencv)
 ![NumPy](https://img.shields.io/badge/-NumPy-gray?style=flat&logo=numpy)
 ![Jupyter Notebook](https://img.shields.io/badge/-Jupyter%20Notebook-black?style=flat&logo=jupyter)
@@ -25,13 +24,14 @@ This makes attendance tracking faster and more accurate.It's like having a smart
 To run this code, you need to:
 - import streamlit as st
 - import numpy as np
+- import pandas as pd
 - import cv2
-- import tensorflow as tf
+- import time
 - import os
-- from keras.models import model_from_json
 - from PIL import Image
-- from google.colab import drive
-- from datetime import datetime
+- from datetime import datetime, timedelta
+- from tensorflow import keras
+- from tensorflow.keras.layers import *
 
 ## Labelling 
 | Label | Description |
@@ -60,7 +60,6 @@ To run this code, you need to:
 * [ ]  **Real-time Performance**:To optimize the model for real-time processing to provide immediate updates without delay.
 
 ## Refrences
-- Emotion detection: https://github.com/juan-csv/emotion_detection
 - Face Recognition: https://github.com/juan-csv/face-recognition
 - Haar Cascade: https://github.com/opencv/opencv/tree/master/data/haarcascades
 - Dataset from Kaggle
