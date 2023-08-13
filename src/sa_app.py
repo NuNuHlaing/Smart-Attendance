@@ -2,20 +2,13 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
-from PIL import Image,ImageOps
-import os
 import cv2
-import xlsxwriter
 import time
-from datetime import datetime, timedelta
+import os
 from PIL import Image
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from datetime import datetime, timedelta
 from tensorflow import keras
-from tensorflow.keras import layers
-from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import *
-from tensorflow.keras.utils import img_to_array, load_img
-from keras.models import load_model
 
 # Define Paths
 logo_path = "src/sa_logo.png"
@@ -167,30 +160,6 @@ def read_csv(predicted_label_name):
     filtered_selected_data = filtered_data[selected_columns]
     return filtered_selected_data
 
-# Save Daily Attendance at 10PM
-def create_new_csv_and_clear_data():
-    # Get the current datetime
-    current_datetime = datetime.now()
-    # Format the datetime object as a string
-    formatted_datetime = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
-    # Set the new sheet name
-    new_sheet_name = 'daily_attendance'
-    # Get the current date for the new CSV file name
-    new_csv_filename = f'DailyAttendance_{formatted_datetime}.csv'
-
-    # Read the original CSV file
-    old_csv_data = pd.read_csv(csv_file_path)
-
-    # Write the data to a new CSV file with a new sheet name
-    old_csv_data.to_csv(new_csv_filename, index=False)
-
-    # Clear the "In" and "Out" columns in the old CSV
-    old_csv_data['In'] = ''
-    old_csv_data['Out'] = ''
-    old_csv_data.to_csv(csv_file_path, index=False)
-
-    print(f'New CSV "{new_csv_filename}" created and data cleared from old CSV.')
-
 # Home 
 def showHomePage() :
     st.markdown("<h4 style='text-align: center;'>using Deep Learning</h4><br><br>", unsafe_allow_html=True) 
@@ -199,7 +168,7 @@ def showHomePage() :
 
     st.write('- People just need to stand in front of a camera - no special cards or lists.')
     st.write('- Accessible to everyone, regardless of their race, gender and black or white.')
-    st.write('- Don\'t save or capture any input data from users.')
+    st.write('- Don\'t save any input data from users.')
     st.write('')
     # Limitations
     st.markdown("<h5 style='text-align: left;'>Limitations!</h5>", unsafe_allow_html=True)         
@@ -226,7 +195,28 @@ def uploadImage(model) :
 
 # Webcam 
 def captureImage(model) :
-    image = st.camera_input("Please take a photo")
+    # Define custom CSS style
+    custom_css = """
+    <style>
+        .camera-label {
+            text-align: left;
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .camera-widget {
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+        }
+    </style>
+    """
+    # Display the camera input widget with custom CSS classes
+    st.markdown(custom_css, unsafe_allow_html=True)
+    # Display the labeled camera input
+    st.markdown('<div class="camera-label">Please take a photo</div>', unsafe_allow_html=True)
+    image = st.camera_input("", key="camera")
     if image is not None:
         st.success("Photo was successfully taken!")
         img = Image.open(image)
@@ -276,6 +266,62 @@ def contact() :
      """
     st.markdown(form_submit,unsafe_allow_html=True)
 
+# Save Daily Attendance at 10PM
+def save_daily_attendance_timer(): 
+    # Set the target time for creating a new CSV
+    target_time = datetime.now().replace(hour=9, minute=40, second=0, microsecond=0)  # 10:00 PM
+    while True:
+        current_time = datetime.now()
+        if current_time >= target_time:            
+            # Get the current datetime
+            current_datetime = datetime.now().date().strftime("%Y%m%d")
+            # Get the current date for the new CSV file name
+            new_csv_filename = f"DailyAttendance_{current_datetime}.csv"  
+            # save daily attendance to new CSV
+            save_daily_attendance_to_newCSV(new_csv_filename)  
+            # Reset the target time for the next day
+            target_time += timedelta(days=1)
+        # Calculate the time remaining until the next target time
+        time_remaining = (target_time - current_time).total_seconds()        
+        # Sleep until the next iteration, ensuring a non-negative sleep time
+        time.sleep(max(1, time_remaining))  # Sleep at least 1 second to avoid negative time_remaining
+       
+# Save Daily Attendance with button click
+def save_daily_attendance_Btn() :
+    # Clear the main area
+    st.empty()
+    # Button to save daily attendance
+    if st.sidebar.button("Save Daily Attendance"): 
+        # Get the current datetime
+        current_datetime = datetime.now().date().strftime("%Y%m%d")
+        # Get the current date for the new CSV file name
+        new_csv_filename = f"DailyAttendance_{current_datetime}.csv"  
+        # save daily attendance to new CSV
+        save_daily_attendance_to_newCSV(new_csv_filename)  
+
+# Save Daily Attendance to new CSV
+def save_daily_attendance_to_newCSV(new_csv_filename) :    
+    st.empty() # Clear the main area    
+    old_csv_data = pd.read_csv(csv_file_path) # Read the original CSV file
+    # Create new folder to save daily attendance
+    new_csv_file_path = "daily attendance/"
+    if not os.path.exists(new_csv_file_path):
+        os.makedirs(new_csv_file_path)
+    new_csv_file_path = os.path.join("daily attendance", new_csv_filename)
+    # Write the data to a new CSV file
+    try:
+        with open(new_csv_filename, 'w') as f:            
+            f.write('\n') # Write an empty line to create the CSV file        
+        old_csv_data.to_csv(new_csv_file_path, index=False) # Copy data to new CSV
+        st.success(f"Save Successfully! '{new_csv_file_path}'.")
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
+    # Clear the "Date", "In" and "Out" columns in the old CSV
+    old_csv_data['Date'] = ''
+    old_csv_data['In'] = ''
+    old_csv_data['Out'] = ''
+    old_csv_data.to_csv(csv_file_path, index=False)
+
 # Create the Streamlit app
 def main():
     # Set Theme entire streamlit area
@@ -298,12 +344,14 @@ def main():
     st.sidebar.image(image, caption='Smart Attendance')
     # Title 
     st.markdown("<h1 style='text-align: center;'>Smart Attendance</h1>", unsafe_allow_html=True) 
+    
     # Choose options: Upload Image or Webcam
-    inputResource = st.sidebar.selectbox('How would you like to be detected?', ['select here...', 'Image', 'Webcam', 'Contact Us'])
+    options = ['select here...', 'Image', 'Webcam', 'Contact Us']
+    inputResource = st.sidebar.selectbox('How would you like to be detected?', options, index=options.index('select here...'))
     
-    # Load the face detection model
+    # Load the smart attendance face detection model
     model = keras.models.load_model(model_path)
-    
+
     # HomePage of Streamlit App
     if inputResource == 'select here...':
         # Clear the main area
@@ -334,7 +382,13 @@ def main():
         st.markdown("<h4 style='text-align: center;'>Contact Us</h4><br><br>", unsafe_allow_html=True) 
         # Contact Us
         contact()
-     
+
+    # daily attendance with timer
+    # save_daily_attendance_timer()
+    # daily attendance with button click 
+    save_daily_attendance_Btn()        
+
 # Load the Streamlit app
 if __name__ == '__main__':
+    # load main
     main()
